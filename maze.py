@@ -69,13 +69,14 @@ class Maze():
         # Determine height and width of maze
         contents = contents.splitlines()
         self.height = len(contents)
-        self.width = max(len(line) for line in contents)
+        self.width = max(len(line) for line in contents)//2
 
         # Keep track of walls
         self.walls = []
         for i in range(self.height):
             row = []
-            for j in range(self.width):
+            for t in range(self.width):
+                j = t * 2
                 try:
                     if contents[i][j] == "A":
                         self.start = (i, j)
@@ -115,7 +116,6 @@ class Maze():
             self.player_pos = new_pos
     def print(self):
         solution = self.solution[1] if self.solution is not None else None
-        print()
         for i, row in enumerate(self.walls):
             for j, col in enumerate(row):
                 if col:
@@ -199,6 +199,7 @@ class Maze():
         """Finds a solution to the maze, if one exists."""
 
         # Keep track of the number of states explored
+
         self.num_explored = 0
 
         # Initialize the frontier to just the starting position
@@ -236,8 +237,14 @@ class Maze():
                 if state not in self.explored:
                     # Calculate g(x) as the steps from the start to the current state
                     actions = []
-                    g_score = len(actions) + 1
-                    # Calculate h(x) as the Euclidean distance from the current state to the goal
+                    current_node = node  # Initialize current_node with node
+
+                    while current_node.parent is not None:
+                        actions.append(current_node.action)
+                        current_node = current_node.parent
+                    actions.reverse()
+                    g_score = len(actions)
+                    # Calculate h(x) as the  distance from the current state to the goal
                     h_score = self.get_distance(state, self.goal)
                     # Calculate the priority as the sum of g(x) and h(x)
                     priority = g_score + h_score
@@ -247,7 +254,6 @@ class Maze():
         raise Exception("No solution")
 
     def get_distance(self, p1, p2):
-        """Calculates the Euclidean distance between two points."""
         x1, y1 = p1
         x2, y2 = p2
         return abs((x2 - x1) + (y2 - y1)) 
@@ -399,17 +405,14 @@ class Maze():
             clock.tick(60)
 
         pygame.quit()
+        
 
 if len(sys.argv) != 2:
     sys.exit("Usage: python maze.py maze.txt")
 
 m = Maze(sys.argv[1])
-# print("Maze:")
-# m.print()
-# print("Solving...")
 m.solveA()
 print("States Explored:", m.num_explored)
-# print("Solution:")
 
 m.output_image("maze.png", show_explored=True)
 m.draw()
