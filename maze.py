@@ -313,6 +313,18 @@ class Maze():
         show_hint = False  # Flag to indicate whether to show the hint
         hint_text = "Press 'H' for a hint"
 
+
+        # Load the player image
+        player_image_path = "Picture\\naruto.jpg"
+        player_image = pygame.image.load(player_image_path)
+        player_image = pygame.transform.scale(player_image, (cell_size, cell_size))
+
+
+        # Load the goal image
+        goal_image_path = "Picture\\target.jpg"  # Make sure this path is correct
+        goal_image = pygame.image.load(goal_image_path)
+        goal_image = pygame.transform.scale(goal_image, (cell_size, cell_size))
+
         pygame.init()
 
         width = self.width * cell_size
@@ -355,16 +367,23 @@ class Maze():
 
             for i in range(self.height):
                 for j in range(self.width):
+                    rect = pygame.Rect(j * cell_size, i * cell_size, cell_size, cell_size)
                     if self.walls[i][j]:
                         pygame.draw.rect(screen, wall_color, (j * cell_size, i * cell_size, cell_size, cell_size))
                     elif (i, j) == self.start:
                         pygame.draw.rect(screen, start_color, (j * cell_size, i * cell_size, cell_size, cell_size))
                     elif (i, j) == self.goal:
-                        pygame.draw.rect(screen, goal_color, (j * cell_size, i * cell_size, cell_size, cell_size))
+                        #   pygame.draw.rect(screen, goal_color, (j * cell_size, i * cell_size, cell_size, cell_size))
+                        # Instead of filling the goal with a solid color, blit the goal image
+                        screen.blit(goal_image, rect.topleft)
                     elif show_hint and self.solution is not None and (i, j) in self.solution[1]:
                         pygame.draw.rect(screen, hint_color, (j * cell_size, i * cell_size, cell_size, cell_size))
-            pygame.draw.rect(screen, explored_color, (self.player_pos[1] * cell_size, self.player_pos[0] * cell_size, cell_size, cell_size))
-
+            # pygame.draw.rect(screen, explored_color, (self.player_pos[1] * cell_size, self.player_pos[0] * cell_size, cell_size, cell_size))
+            # Draw the player image at the player's current position
+            player_pos_x, player_pos_y = self.player_pos[1] * cell_size, self.player_pos[0] * cell_size
+            screen.blit(player_image, (player_pos_x, player_pos_y))
+      
+            
             # Draw [H is hint button]   
             pygame.draw.rect(screen, hint_color, (10, height - 35, len(hint_text) * 12, 25))
             font = pygame.font.Font(None, 20)
